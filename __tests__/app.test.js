@@ -13,10 +13,12 @@ describe("GET /api/categories ", () => {
       .get("/api/categories")
       .expect(200)
       .then((res) => {
+        //console.log(res.body.categories[0]);
         expect(Array.isArray(res.body.categories)).toBe(true);
         expect(res.body.categories).toHaveLength(4);
-        expect(typeof res.body.categories[0]).toEqual("object");
-        //console.log(res.body.categories);
+        expect(Object.keys(res.body.categories[0])).toEqual(["slug", "description"])
+      } 
+        )
         
       });
   });
@@ -28,5 +30,5 @@ describe("GET /api/categories ", () => {
         expect(res.body.msg).toBe("Not Found!");
       });
   });
-});
+//});
 
