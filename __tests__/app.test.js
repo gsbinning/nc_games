@@ -15,6 +15,8 @@ describe("GET /api/categories ", () => {
       .then((res) => {
         expect(Array.isArray(res.body.categories)).toBe(true);
         expect(res.body.categories).toHaveLength(4);
+        expect(typeof res.body.categories[0]).toEqual("object");
+        //console.log(res.body.categories);
         
       });
   });
