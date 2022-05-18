@@ -76,23 +76,23 @@ describe('GET /api/reviews/:review_id', () => {
 
     describe('PATCH /api/reviews/:review_id', () => {
         test('200:return the updated vote in the response body', () => {
-          const incrementedVoteObj = { inc_votes: 100 };
+          const reqBody = { inc_votes: 100 };
           return request(app)
             .patch('/api/reviews/1')
-            .send(incrementedVoteObj)
+            .send(reqBody)
             .expect(200)
             .then(({ body }) => {
-                console.log(body);
+                //console.log(body);
               expect(body.review.review_id).toBe(1);
               expect(body.review.votes).toBe(101);
             });  
         });
 
         test("200: returns returns updated review object when new votes is a negative number", () => {
-            const newReqBody = { inc_votes: -2 };
+            const reqBody = { inc_votes: -2 };
             return request(app)
               .patch("/api/reviews/2")
-              .send(newReqBody)
+              .send(reqBody)
               .expect(200)
               .then((res) => {
                 expect(res.body.review).toEqual({
@@ -111,10 +111,10 @@ describe('GET /api/reviews/:review_id', () => {
           });
 
         test('404: when provided with a valid but non-existent review id', () => {
-            const newVoteObj = { inc_votes: 1 };
+            const reqBody = { inc_votes: 1 };
             return request(app)
               .get('/api/reviews/1000')
-              .send(newVoteObj)
+              .send(reqBody)
               .expect(404)
               .then(({ body }) => {
                 expect(body.msg).toBe('not found');
@@ -134,17 +134,24 @@ describe('GET /api/reviews/:review_id', () => {
           });
 
           test("400: returns an error message when called with a float/decimal number ", () => {
-            const newReqBody = { inc_votes: "5.5" };
+            const reqBody = { inc_votes: "5.5" };
         
             return request(app)
               .patch("/api/reviews/1")
-              .send(newReqBody)
+              .send(reqBody)
               .expect(400)
               .then((res) => {
                 expect(res.body.msg).toBe("bad request");
               });
           });
+          test('400: returns when vote is not a number', () => {
+            return request(app)
+              .patch("/api/reviews/6")
+              .send({ inc_votes: "doggy" })
+              .expect(400)
+              .then((res) => {
+                expect(res.body.msg).toBe("bad request")
+              })
+          });
+          });
         });
-     });
-    //});
-//});
