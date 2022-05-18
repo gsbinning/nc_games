@@ -18,7 +18,7 @@ describe("GET /api/categories ", () => {
         expect(res.body.categories).toHaveLength(4);
         expect(Object.keys(res.body.categories[0])).toEqual(["slug", "description"])
       })
-        });
+    });
   });
   test("404: Not Found categories", () => {
     return request(app)
@@ -29,37 +29,10 @@ describe("GET /api/categories ", () => {
       });
   });
 
-//   describe("GET /api/reviews/:review_id", () => {
-//     test("200: returns a review object", () => {
-//       return request(app)
-//         .get("/api/reviews/2")
-//         .expect(200)
-//         .then((res) => {
-//         //console.log(res.body.review);
-//         expect(res.body.review).toHaveLength(13);
-//         res.body.review.forEach((review) => {
-//           expect(res.body.review).toEqual(
-//             expect.objectContaining({
-//               owner: expect.any(String),
-//               title: expect.any(String),
-//               review_id: expect.any(Number),
-//               review_body: expect.any(String),
-//               designer: expect.any(String),
-//               review_img_url: expect.any(String),
-//               category: expect.any(String),
-//               created_at: expect.any(String),
-//               votes: expect.any(Number),
-//             })
-            
-//           );
-//         });
-//     })
-//     });
-
 
 
 describe('GET /api/reviews/:review_id', () => {
-    test("status 200: responds with a single review when passed review_id", () => {
+    test("200: responds with a single review when passed review_id", () => {
       return request(app)
         .get('/api/reviews/1')
         .expect(200)
@@ -98,6 +71,87 @@ describe('GET /api/reviews/:review_id', () => {
           expect(res.body.msg).toBe("bad request");
         });
     });
-  });
 
 
+
+    describe('PATCH /api/reviews/:review_id', () => {
+        test('200:return the updated vote in the response body', () => {
+          const reqBody = { inc_votes: 100 };
+          return request(app)
+            .patch('/api/reviews/1')
+            .send(reqBody)
+            .expect(200)
+            .then(({ body }) => {
+                //console.log(body);
+              expect(body.review.review_id).toBe(1);
+              expect(body.review.votes).toBe(101);
+            });  
+        });
+
+        test("200: returns returns updated review object when new votes is a negative number", () => {
+            const reqBody = { inc_votes: -2 };
+            return request(app)
+              .patch("/api/reviews/2")
+              .send(reqBody)
+              .expect(200)
+              .then((res) => {
+                expect(res.body.review).toEqual({
+                  review_id: 2,
+                  title: "Jenga",
+                  designer: "Leslie Scott",
+                  owner: "philippaclaire9",
+                  review_img_url:
+                    "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+                  review_body: "Fiddly fun for all the family",
+                  category: "dexterity",
+                  created_at: "2021-01-18T10:01:41.251Z",
+                  votes: 3,
+                });
+              });
+          });
+
+        test('404: when provided with a valid but non-existent review id', () => {
+            const reqBody = { inc_votes: 1 };
+            return request(app)
+              .get('/api/reviews/1000')
+              .send(reqBody)
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).toBe('not found');
+              });
+          });
+
+          test("400: returns bad request error message when called with a review id of wrong data type", () => {
+            const reqBody = { inc_votes: 7 };
+        
+            return request(app)
+              .patch("/api/reviews/bananas")
+              .send(reqBody)
+              .expect(400)
+              .then((res) => {
+                expect(res.body.msg).toBe("bad request");
+              });
+          });
+
+          test("400: returns an error message when called with a float/decimal number ", () => {
+            const reqBody = { inc_votes: "5.5" };
+        
+            return request(app)
+              .patch("/api/reviews/1")
+              .send(reqBody)
+              .expect(400)
+              .then((res) => {
+                expect(res.body.msg).toBe("bad request");
+              });
+          });
+          test('400: returns when vote is not a number', () => {
+            return request(app)
+              .patch("/api/reviews/6")
+              .send({ inc_votes: "doggy" })
+              .expect(400)
+              .then((res) => {
+                expect(res.body.msg).toBe("bad request")
+              })
+          });
+          });
+        });
