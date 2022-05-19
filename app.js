@@ -1,6 +1,4 @@
 const express = require("express");
-const req = require("express/lib/request");
-const res = require("express/lib/response");
 const app = express();
 const {getCategories, getReviewById, patchReviewVoteById, getUsers, getReviews} = require("./controllers/controllers");
 
