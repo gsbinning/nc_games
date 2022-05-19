@@ -215,13 +215,5 @@ describe("GET /api/users", () => {
               })
             })
         });
-        test('404: should return not found if spelt incorrectly at the endpoint', () => {
-          return request(app)
-            .get('/api/rvewsiews')
-            .expect(404)
-            .then((res) => {
-              expect(res.body.msg).toBe("not found")
-            })
-        });
       });
 
