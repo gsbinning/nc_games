@@ -18,7 +18,6 @@ const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers} = require(
         res.status(200).send({ review });
       })
       .catch((err) => {
-        //console.log(err);
         next(err);
       });
   };
@@ -39,7 +38,6 @@ const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers} = require(
   exports.getUsers = (req, res, next) => {
     fetchUsers()
       .then((users) => {
-        console.log(users, "<<<<<");
         res.status(200).send({ users: users });
       })
       //.catch(err);
