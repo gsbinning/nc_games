@@ -15,6 +15,7 @@ const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers} = require(
     //console.log(reviewId, "controller");
     fetchReviewID(reviewId)
       .then((review) => {
+        //console.log(review);
         res.status(200).send({ review });
       })
       .catch((err) => {

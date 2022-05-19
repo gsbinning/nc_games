@@ -37,9 +37,9 @@ describe('GET /api/reviews/:review_id', () => {
         .get('/api/reviews/1')
         .expect(200)
         .then(({ body }) => {
-          //console.log(body.review);
+         // console.log(body.review, "test");
           expect(body.review).toBeInstanceOf(Object);
-          expect(body.review).toEqual({
+          expect(body.review).toEqual(expect.objectContaining({
             review_id: 1,
             title: 'Agricola',
             review_body: 'Farmyard fun!',
@@ -50,7 +50,7 @@ describe('GET /api/reviews/:review_id', () => {
             category: 'euro game',
             owner: 'mallionaire',
             created_at: '2021-01-18T10:00:20.514Z'
-          });
+          }));
         });
     });
   
@@ -71,6 +71,21 @@ describe('GET /api/reviews/:review_id', () => {
           expect(res.body.msg).toBe("bad request");
         });
     });
+   
+    test("200: should add comment_count to GET review. This will include a comment_count property with the correct value for the review_id passed", () => {
+        const review_id = 1
+        return request(app)
+          .get(`/api/reviews/${review_id}`)
+          .expect(200)
+          .then(({ body }) => {
+            //console.log(body.review);
+          expect(body.review).toEqual(
+            expect.objectContaining({
+            comment_count: 0
+                        })
+                    );
+               });
+           
 });
 
 
@@ -96,6 +111,7 @@ describe('GET /api/reviews/:review_id', () => {
               .send(reqBody)
               .expect(200)
               .then((res) => {
+                  //console.log(res.body.review);
                 expect(res.body.review).toEqual({
                   review_id: 2,
                   title: "Jenga",
@@ -174,7 +190,5 @@ describe("GET /api/users", () => {
                           });
         })
          });
-        });
-              
-  
-        
+       });
+    });
