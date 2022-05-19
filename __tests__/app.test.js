@@ -71,6 +71,7 @@ describe('GET /api/reviews/:review_id', () => {
           expect(res.body.msg).toBe("bad request");
         });
     });
+});
 
 
 
@@ -153,5 +154,27 @@ describe('GET /api/reviews/:review_id', () => {
                 expect(res.body.msg).toBe("bad request")
               })
           });
-          });
         });
+describe("GET /api/users", () => {
+    test("200:should respond with an array of objects, each object should have the following property: username", () => {
+        return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then((response) => {
+            expect(response.body.users).toHaveLength(4);
+            expect(response.body.users).toBeInstanceOf(Array);
+            response.body.users.forEach((user) => {
+                            expect(user).toEqual(
+                              expect.objectContaining({
+                                username: expect.any(String),
+                                avatar_url: expect.any(String),
+                                name: expect.any(String),
+                              })
+                            );
+                          });
+        })
+         });
+        });
+              
+  
+        

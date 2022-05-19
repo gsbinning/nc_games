@@ -1,4 +1,4 @@
-const {fetchCategories, fetchReviewID, updatePatchReview} = require("../models/models");
+const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers} = require("../models/models");
   
   exports.getCategories = (req, res, next) => {
     fetchCategories()
@@ -18,7 +18,6 @@ const {fetchCategories, fetchReviewID, updatePatchReview} = require("../models/m
         res.status(200).send({ review });
       })
       .catch((err) => {
-        //console.log(err);
         next(err);
       });
   };
@@ -34,6 +33,14 @@ const {fetchCategories, fetchReviewID, updatePatchReview} = require("../models/m
       .catch((err) => {
         next(err);
       });
+  };
+
+  exports.getUsers = (req, res, next) => {
+    fetchUsers()
+      .then((users) => {
+        res.status(200).send({ users: users });
+      })
+      //.catch(err);
   };
 
 

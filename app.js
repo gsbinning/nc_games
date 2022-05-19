@@ -2,7 +2,7 @@ const express = require("express");
 const req = require("express/lib/request");
 const res = require("express/lib/response");
 const app = express();
-const {getCategories, getReviewById, patchReviewVoteById} = require("./controllers/controllers");
+const {getCategories, getReviewById, patchReviewVoteById, getUsers} = require("./controllers/controllers");
 
 
 app.use(express.json());
@@ -12,6 +12,7 @@ app.use(express.json());
 app.get("/api/categories", getCategories);
 app.get("/api/reviews/:review_id", getReviewById);
 app.patch("/api/reviews/:review_id", patchReviewVoteById);
+app.get("/api/users", getUsers)
 
 app.all("/*", (req, res) => {
     res.status(404).send({ msg: "not found" });

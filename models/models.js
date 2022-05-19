@@ -31,4 +31,12 @@ exports.fetchReviewID = (reviewId) => {
           }
           return review.rows[0];
         });
-    };
+    }; 
+
+    exports.fetchUsers = () => {
+        return db.query(`SELECT * FROM users`)
+            .then((response) => {
+                return response.rows;
+            });
+        };
+
