@@ -217,3 +217,62 @@ describe("GET /api/users", () => {
         });
       });
 
+      describe('GET /api/reviews/:review_id/comments', () => {
+        test('200: should respond with an array of comments for the given review_id', () => {
+            return request(app)
+                .get('/api/reviews/2/comments')
+                .expect(200)
+                .then(({ body: {comments}}) => {
+                    expect(comments).toBeInstanceOf(Array);
+                    expect(comments).toHaveLength(3);
+                        comments.forEach((comment) => {
+                            expect(comment).toEqual(
+                                expect.objectContaining({
+                                    comment_id: expect.any(Number),
+                                    votes: expect.any(Number),
+                                    created_at: expect.any(String),
+                                    author: expect.any(String),
+                                    body: expect.any(String),
+                                    review_id: expect.any(Number)
+                                })
+                            )
+                        })
+                })
+        });
+    
+        test('400: Should return a status code of 400 when an incorrect data type is passed into the endpoint', () => {
+            return request(app)
+            .get('/api/reviews/yoyo/comments')
+            .expect(400)
+            .then(({ body:{ msg } }) => {
+                expect(msg).toBe('bad request');
+            });
+        });
+        test("200: returns 200 with an empty array when there are no comments for the given review id", () => {
+            return request(app)
+              .get("/api/reviews/1/comments")
+              .expect(200)
+                .then(({ body: { comments } }) => {
+                expect(comments).toEqual([]);
+              });
+          });
+
+          test("200: returns 200 when a valid number is passed which has no comments", () => {
+            return request(app)
+              .get("/api/reviews/1/comments")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments).toBeInstanceOf(Array);
+                expect(comments).toHaveLength(0);
+              });
+          });
+          test('404: should respond with not found if passed a valid number but not one that match a Valid ID in the path ', () => {
+            return request(app)
+            .get('/api/reviews/99/comments')
+            .expect(404)
+            .then(({ body: { msg }}) => {
+                expect(msg).toBe('No review found for review_id: 99');
+            });
+        });
+    
+    });

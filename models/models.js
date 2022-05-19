@@ -62,3 +62,20 @@ exports.fetchReviewID = (reviewId) => {
                     return result.rows;
                 });
         };
+
+
+        exports.fetchCommentsByID = (review_id) => {
+            
+            const bodyRev = db.query(`SELECT review_id FROM reviews WHERE review_id = $1;`, [review_id]);
+
+            const bodyComm = db.query(`SELECT * FROM comments WHERE review_id = $1`, [review_id])
+                
+            return Promise.all([bodyRev, bodyComm])
+                    .then(([bodyRev, bodyComm]) => {
+                        if(!bodyRev.rows.length) {
+                        return Promise.reject
+                        ({ status: 404, msg: `No review found for review_id: ${review_id}`});
+                        } 
+                        return bodyComm.rows;
+                    });
+        };
