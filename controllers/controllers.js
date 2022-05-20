@@ -1,4 +1,4 @@
-const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers, fetchReviews, fetchCommentsByID} = require("../models/models");
+const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers, fetchReviews, fetchCommentsByID, addCommentByReviewId} = require("../models/models");
   
   exports.getCategories = (req, res, next) => {
     fetchCategories()
@@ -12,7 +12,6 @@ const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers, fetchRevie
 
   exports.getReviewById = (req, res, next) => {
     const { review_id: reviewId } = req.params;
-    //console.log(reviewId, "controller");
     fetchReviewID(reviewId)
       .then((review) => {
         res.status(200).send({ review });
@@ -40,13 +39,18 @@ const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers, fetchRevie
       .then((users) => {
         res.status(200).send({ users: users });
       })
-      //.catch(err);
+      .catch((err) => {
+        next(err);
+    })
   };
 
   exports.getReviews = (req, res, next) => {
     fetchReviews().then((reviews) => {
       res.status(200).send({ reviews: reviews });
-    });
+    })
+    .catch((err) => {
+      next(err);
+  })
   };
 
 
@@ -58,5 +62,17 @@ const {fetchCategories, fetchReviewID, updatePatchReview, fetchUsers, fetchRevie
     }).catch((err) => {
         next(err);
     })
+};
+
+exports.postCommentsByReviewId = (req, res, next) => {
+  const { review_id } = req.params;
+  const { body, username } = req.body;
+  addCommentByReviewId(body, username, review_id)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    }).catch((err) => {
+      next(err);
+  })
+
 };
 

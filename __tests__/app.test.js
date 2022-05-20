@@ -20,6 +20,7 @@ describe("GET /api/categories ", () => {
       })
     });
   });
+
   test("404: Not Found categories", () => {
     return request(app)
       .get("/api/cetegories")
@@ -193,7 +194,6 @@ describe("GET /api/users", () => {
        });
     });
 
-
     describe('GET /api/reviews', () => {
         test('200: should return all reviews', () => {
           return request(app)
@@ -257,15 +257,6 @@ describe("GET /api/users", () => {
               });
           });
 
-          test("200: returns 200 when a valid number is passed which has no comments", () => {
-            return request(app)
-              .get("/api/reviews/1/comments")
-              .expect(200)
-              .then(({ body: { comments } }) => {
-                expect(comments).toBeInstanceOf(Array);
-                expect(comments).toHaveLength(0);
-              });
-          });
           test('404: should respond with not found if passed a valid number but not one that match a Valid ID in the path ', () => {
             return request(app)
             .get('/api/reviews/99/comments')
@@ -274,5 +265,59 @@ describe("GET /api/users", () => {
                 expect(msg).toBe('No review found for review_id: 99');
             });
         });
-    
+     });
+     describe('POST /api/reviews/:review_id/comments', () => {
+        test('201 Created. Responds with the a new posted comment to the comments array of the review_id', () => {
+          return request(app)
+            .post('/api/reviews/1/comments')
+            .send({ username: "philippaclaire9", body: "Best game ever"})
+            .expect(201)
+            .then((res) => {
+              expect(res.body.comment).toMatchObject({
+                comment_id: expect.any(Number),
+                author: expect.any(String),
+                review_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                body: expect.any(String)
+              })
+            })
+        });
+        test("status 400: Bad request error when the review_id is invalid", () => {
+            const sendData = {
+              username: "mallionaire",
+              body: "very bad! boo!",
+            };
+            return request(app)
+              .post("/api/reviews/yoyo/comments")
+              .send(sendData)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).toBe("bad request");
+              });
+          });
+          test('400: should return custom error if body does not contain both mandatory keys', () => {
+            const addComment = {username: 'mallionaire'};
+            return request(app)
+                .post('/api/reviews/2/comments')
+                .send(addComment)
+                .expect(400)
+                .then(({ body: { msg }}) => {
+                    expect(msg).toBe('bad request')
+                });
+                 });
+
+        test('404: should return not found user', () => {
+            const addComment = {
+                username: 'gugz',
+                body: 'who wants to play a game of fifa?'
+            };
+            return request(app)
+                .post('/api/reviews/5/comments')
+                .send(addComment)
+                .expect(404)
+                .then(({ body: { msg }}) => {
+                    expect(msg).toBe('not found')
+                });
+        });
     });
