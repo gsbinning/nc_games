@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const {getCategories, getReviewById, patchReviewVoteById, getUsers, getReviews, getCommentsByID} = require("./controllers/controllers");
+const {getCategories, getReviewById, patchReviewVoteById, getUsers, getReviews, getCommentsByID, postCommentsByReviewId} = require("./controllers/controllers");
 
 
 app.use(express.json());
@@ -15,9 +15,10 @@ app.get("/api/reviews/:review_id/comments", getCommentsByID);
 
 
 
-
-
 app.patch("/api/reviews/:review_id", patchReviewVoteById);
+
+
+app.post('/api/reviews/:review_id/comments',postCommentsByReviewId)
 
 app.all("/*", (req, res) => {
     res.status(404).send({ msg: "not found" });
@@ -32,16 +33,34 @@ app.all("/*", (req, res) => {
     }
 })
 
+
+app.use((err, req, res, next) => {
+    if (err.code === "23502") {
+        res.status(400).send({ msg: "bad request" })
+    } else {
+        next(err);
+    }
+})
+
+
+app.use((err, req, res, next) => {
+    if (err.code === "23503") {
+        res.status(404).send({ msg: "not found" })
+    } else {
+        next(err);
+    }
+})
+
 app.use((err, req, res, next) => {
     if (err.status && err.msg) {
         res.status(err.status).send({msg: err.msg});
+    } else {
+    next(err);
     }
-    
 })
 
 
   app.use((err, req, res, next) => {
-    console.log(err)
     res.status(500).send( { msg: 'Internal server error'} );
 })
 
