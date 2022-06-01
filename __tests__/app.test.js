@@ -209,6 +209,8 @@ describe("GET /api/reviews", () => {
         });
       });
   });
+
+
 });
 
 describe("GET /api/reviews/:review_id/comments", () => {
@@ -314,14 +316,6 @@ describe("POST /api/reviews/:review_id/comments", () => {
         expect(msg).toBe("not found");
       });
   });
-//   test('404: should respond with "not found" if passed a valid number', () => {
-//     return request(app)
-//     .get('/api/reviews/2000022/comments')
-//     .expect(404)
-//     .then(({ body: { msg }}) => {
-//         expect(msg).toBe('not found');
-//     });
-// });
 
 test('404: should return a 404 error if review id in path does not exist but is a valid number', () => {
   const comment = {
@@ -338,4 +332,34 @@ test('404: should return a 404 error if review id in path does not exist but is 
       });
 });
 
+  
+});
+
+describe("GET /api/reviews", () => {
+  test('200: should return a list of reviews sorted by the passed query', () => {
+    return request(app)
+        .get('/api/reviews?sort_by=votes')
+        .expect(200)
+        .then(({ body: { reviews }}) => {
+            expect(reviews).toBeSortedBy('votes', { descending: true });
+        })
+});
+
+test('400: should respond with "bad request" if user tries to enter a non-valid sort_by query', () => {
+    return request(app)
+        .get('/api/reviews?sort_by=review_body')
+        .expect(400)
+        .then(({ body: { msg }}) => {
+            expect(msg).toBe('bad request');
+        })
+});
+
+test('200: should return a list of reviews sorted in asc or desc (default) order', () => {
+  return request(app)
+      .get('/api/reviews?order_by=ASC')
+      .expect(200)
+      .then(({ body: { reviews }}) => {
+          expect(reviews).toBeSortedBy('created_at');
+      })
+});
 });

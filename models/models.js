@@ -42,26 +42,28 @@ exports.fetchReviewID = (reviewId) => {
             });
         };
 
-    
+
         exports.fetchReviews = () => {
-            return db.query(`
-            SELECT 
-                reviews.review_id,    
-                reviews.owner, 
-                reviews.title, 
-                reviews.category, 
-                reviews.review_img_url, 
-                reviews.created_at, 
-                reviews.votes, 
-            COUNT(comments.review_id)::INT AS comment_count 
-            FROM reviews
-            LEFT JOIN comments ON comments.review_id = reviews.review_id 
-            GROUP BY reviews.review_id
-            ORDER BY created_at DESC;`)
-                .then((result) => {
-                    return result.rows;
-                });
-        };
+          return db.query(`
+          SELECT 
+              reviews.review_id,    
+              reviews.owner, 
+              reviews.title, 
+              reviews.category, 
+              reviews.review_img_url, 
+              reviews.created_at, 
+              reviews.votes, 
+          COUNT(comments.review_id)::INT AS comment_count 
+          FROM reviews
+          LEFT JOIN comments ON comments.review_id = reviews.review_id 
+          GROUP BY reviews.review_id
+          ORDER BY created_at DESC;`)
+              .then((result) => {
+                  return result.rows;
+              });
+      };
+
+
 
 
         exports.fetchCommentsByID = (review_id) => {
@@ -89,6 +91,55 @@ exports.fetchReviewID = (reviewId) => {
         .then((response) => {
             return response.rows[0];
           });
-
     }
 
+
+    exports.fetchAllReviews = (
+      sort_by = "created_at",
+      order = "DESC",
+      category
+    ) => {
+      if (
+        !["title", "designer", "owner", "category", "created_at"].includes(sort_by)
+      ) {
+        return Promise.reject({
+          status: 400,
+          message: "bad request",
+        });
+      }
+    
+      if (!["asc", "desc", "ASC", "DESC"].includes(order)) {
+        return Promise.reject({
+          status: 400,
+          message: "bad request",
+        });
+      }
+    
+      db.query(`SELECT slug FROM categories`).then(({ rows }) => {
+        const categoryList = rows.map((category) => category.slug);
+        if (category & !categoryList.includes(category)) {
+          return Promise.reject({
+            status: 404,
+            message: "not found",
+          });
+        }
+      });
+    
+      let queryString = `SELECT reviews.*, COUNT (comment_id) ::int AS comment_count FROM reviews LEFT JOIN comments ON comments.review_id = reviews.review_id`;
+    
+      order = order.toUpperCase();
+      if (category) {
+        queryString += ` WHERE reviews.category = '${category}'`;
+      }
+    
+      queryString += ` GROUP BY reviews.review_id ORDER BY reviews.${sort_by} ${order};`;
+    
+      return db.query(queryString).then(({ rows }) => {
+        if (!rows.length) {
+          return Promise.reject({
+            status: 404,
+            message: "not found",
+          });
+        } else return rows;
+      });
+    };
