@@ -314,6 +314,8 @@ describe("POST /api/reviews/:review_id/comments", () => {
         expect(msg).toBe("not found");
       });
   });
+
+
 //   test('404: should respond with "not found" if passed a valid number', () => {
 //     return request(app)
 //     .get('/api/reviews/2000022/comments')
@@ -337,5 +339,39 @@ test('404: should return a 404 error if review id in path does not exist but is 
           expect(msg).toBe('not found')
       });
 });
+
+describe("DELETE: /api/comments/:comment_id", () => {
+  test("204: Should return a status of 204 and delete the comment at the specific comment_id", () => {
+    return request(app)
+      .delete("/api/comments/3")
+      .expect(204)
+      .then(() => {
+        return db.query(`SELECT * FROM comments WHERE comment_id = 3`);
+      })
+      .then(({ rows }) => {
+        expect(rows).toHaveLength(0);
+      });
+  });
+
+  test('404: should return "not found" if comment does not exist', () => {
+    return request(app)
+      .delete("/api/comments/199999")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("not found");
+      });
+  });
+
+  test('400: should return with "bad request" id comment_id is not a number', () => {
+    return request(app)
+      .delete("/api/comments/yo")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
+});
+
+
 
 });

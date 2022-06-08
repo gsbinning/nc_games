@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const {getCategories, getReviewById, patchReviewVoteById, getUsers, getReviews, getCommentsByID, postCommentsByReviewId} = require("./controllers/controllers");
+const {getCategories, getReviewById, patchReviewVoteById, getUsers, getReviews, getCommentsByID, postCommentsByReviewId, deleteComment} = require("./controllers/controllers");
 
 
 app.use(express.json());
@@ -19,6 +19,9 @@ app.patch("/api/reviews/:review_id", patchReviewVoteById);
 
 
 app.post('/api/reviews/:review_id/comments',postCommentsByReviewId)
+
+
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.all("/*", (req, res) => {
     res.status(404).send({ msg: "not found" });
